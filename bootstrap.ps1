@@ -1,7 +1,15 @@
 param (
     [switch] $Init = $false,
-    [switch] $Restart = $false
+    [switch] $Restart = $false,
+    [switch] $BaseSystem = $false,
+    [switch] $Extras = $false,
+    [string] $Browser = "Firefox",
+    [string] $VisualStudioFlavor = "buildtools"
 )
+
+function Get-SelectedActions {
+    return (($Init -or $BaseSystem) -or $Extras)
+}
 
 function Add-Chocolatey {
     if (Get-Command "choco" -errorAction SilentlyContinue) {
@@ -103,30 +111,67 @@ function PromptYesNoWithMessage {
     return $Host.UI.PromptForChoice('', $Question, $choices, 0)
 }
 
+function Write-ManifestOutput {
+    param(
+        [string] $Package
+    )
+
+    Write-Output "[info] going to install '$Package'"
+}
 function Write-Manifest {
     if ($Init) {
-        Write-Output "[info] going to install 'chocolatey'"
+        Write-ManifestOutput("chocolatey")
     }
-}
 
-Write-Manifest
-
-$decision = PromptYesNoWithMessage "Do you want to continue?" "Proceed and apply described changes"  "Abort execution"
-if ($decision -eq 1) {
-    Write-Output "[info] aborting installation, see you !"
-    exit
-}
-
-if ($Init) {
-    Add-Chocolatey
-}
-
-if ($Restart) {
-    $decision = PromptYesNoWithMessage("You need to reboot to complete setup. Do you want to do it now?", "Restart workstation", "Do not restart, will do it manually")
-    if ($decision -eq 0) {
-        Restart-Computer
+    if ($VisualStudioFlavor -eq "buildtools") {
+        Write-ManifestOutput("Visual Studio Build Tools 2019")
     }
     else {
-        Write-Host 'Setup complete. Have fun!'
+        Write-ManifestOutput("Visual Studio Community 2019")
+    }
+
+    if ($BaseSystem) {
+        Write-ManifestOutput($Browser)
+        Write-ManifestOutput("slack")
+        Write-ManifestOutput("git")
+    }
+
+    if ($Extras) {
+        Write-ManifestOutput("discord")
+        Write-ManifestOutput("vlc")
+        Write-ManifestOutput("gimp")
+        Write-ManifestOutput("obs-sudio")
+        Write-ManifestOutput("openshot")
+        Write-ManifestOutput("powershell-core")
+    }
+}
+
+if (Get-SelectedActions) {
+    Write-Manifest
+
+    $decision = PromptYesNoWithMessage "Do you want to continue?" "Proceed and apply described changes"  "Abort execution"
+    if ($decision -eq 1) {
+        Write-Output "[info] aborting installation, see you !"
+        exit
+    }
+
+    if ($Init) {
+        Add-Chocolatey
+    }
+
+    if ($BaseSystem) {
+        Install-Package($Browser)
+        Install-Package("slack")
+        Install-Package("git.install")
+    }
+
+    if ($Restart) {
+        $decision = PromptYesNoWithMessage("You need to reboot to complete setup. Do you want to do it now?", "Restart workstation", "Do not restart, will do it manually")
+        if ($decision -eq 0) {
+            Restart-Computer
+        }
+        else {
+            Write-Host 'Setup complete. Have fun!'
+        }
     }
 }
