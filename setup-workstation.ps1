@@ -90,6 +90,19 @@ function Add-VisualStudio {
     }
 }
 
+function PromptYesNoWithMessage {
+    param(
+        [string] $Question,
+        [string] $YesMessage,
+        [string] $NoMessage
+    )
+
+    $ChoiceYes = New-Object System.Management.Automation.Host.ChoiceDescription '&Yes', $YesMessage
+    $ChoiceNo = New-Object System.Management.Automation.Host.ChoiceDescription '&No', $NoMessage
+    $choices = $ChoiceYes, $ChoiceNo
+    return $Host.UI.PromptForChoice('', $Question, $choices, 0)
+}
+
 function Write-Manifest {
     if ($Init) {
         Write-Output "[info] going to install 'chocolatey'"
@@ -98,11 +111,10 @@ function Write-Manifest {
 
 Write-Manifest
 
-$choices = '&Yes', '&No'
-$decision = $Host.UI.PromptForChoice('', "Do you want to continue?", $choices, 0)
+$decision = PromptYesNoWithMessage "Do you want to continue?" "Proceed and apply described changes"  "Abort execution"
 if ($decision -eq 1) {
     Write-Output "[info] aborting installation, see you !"
-    Exit
+    exit
 }
 
 if ($Init) {
@@ -110,8 +122,7 @@ if ($Init) {
 }
 
 if ($Restart) {
-    $choices = '&Yes', '&No'
-    $decision = $Host.UI.PromptForChoice('', "You need to reboot to complete setup. Do you want to do it now?", $choices, 0)
+    $decision = PromptYesNoWithMessage("You need to reboot to complete setup. Do you want to do it now?", "Restart workstation", "Do not restart, will do it manually")
     if ($decision -eq 0) {
         Restart-Computer
     }
