@@ -167,22 +167,22 @@ if (Get-SelectedActions) {
     }
 
     if ($BaseSystem) {
-        Install-Package($Browser)
-        Install-Package("slack")
-        Install-Package("git")
+        Add-Package($Browser)
+        Add-Package("slack")
+        Add-Package("git")
     }
 
     if (-Not $DisableVisualStudio) {
         if ($VisualStudioFlavor -eq "buildtools") {
-            Install-VisualStudio "visualstudio2019buildtools"
+            Add-VisualStudio "visualstudio2019buildtools"
         }
         else {
-            Install-VisualStudio "visualstudio2019community"
+            Add-VisualStudio "visualstudio2019community"
         }
     }
 
     if ($Extras) {
-        Install-Package("steam")
+        Add-Package("steam")
     }
 
     if ($Restart) {
