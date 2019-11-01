@@ -5,12 +5,16 @@ param (
     [switch] $Extras = $false,
     [string] $Browser = "firefox",
     [string] $VisualStudioFlavor = "buildtools",
-    [switch] $DisableVisualStudio = $false,
-    [switch] $Games = $false
+    [switch] $NoVisualStudio = $false,
+    [switch] $UnrealEngineFlavor = "installed",
+    [switch] $NoUnrealEngine = $false,
+    [switch] $Games = $false,
+    [switch] $Design = $false,
+    [switch] $VideoEditing = $false
 )
 
 function Get-SelectedActions {
-    return (((($Init -or $BaseSystem) -or $Extras) -or $Games) -or (-Not $DisableVisualStudio))
+    return ((((((($Init -or $BaseSystem) -or $Extras) -or $Games) -or (-Not $NoVisualStudio)) -or (-Not $NoUnrealEngine)) -or $Design) -or $VideoEditing)
 }
 
 function Add-Chocolatey {
@@ -54,7 +58,7 @@ function Add-Package {
     }
 }
 
-function Add-Pip-Package {
+function Add-PipPackage {
     param (
         [string] $packageName
     )
@@ -125,7 +129,7 @@ function Write-Manifest {
         Write-ManifestOutput("chocolatey")
     }
 
-    if (-Not $DisableVisualStudio) {
+    if (-Not $NoVisualStudio) {
         if ($VisualStudioFlavor -eq "buildtools") {
             Write-ManifestOutput("Visual Studio Build Tools 2019")
         }
@@ -133,6 +137,7 @@ function Write-Manifest {
             Write-ManifestOutput("Visual Studio Community 2019")
         }
     }
+
     if ($BaseSystem) {
         Write-ManifestOutput($Browser)
         Write-ManifestOutput("slack")
@@ -142,15 +147,27 @@ function Write-Manifest {
     if ($Extras) {
         Write-ManifestOutput("discord")
         Write-ManifestOutput("vlc")
-        Write-ManifestOutput("gimp")
-        Write-ManifestOutput("obs-sudio")
-        Write-ManifestOutput("openshot")
         Write-ManifestOutput("powershell-core")
     }
 
-    if ($Extras) {
+    if ($Games) {
         Write-ManifestOutput("steam")
     }
+
+    if ($Design) {
+        Write-ManifestOutput("gimp")
+    }
+
+    if ($VideoEditing) {
+        Write-ManifestOutput("obs-studio")
+        Write-ManifestOutput("openshot")
+    }
+
+    if (-Not $NoUnrealEngine) {
+        Write-ManifestOutput("python3")
+        Write-ManifestOutput("ue4cli")
+    }
+
 }
 
 if (Get-SelectedActions) {
@@ -172,7 +189,7 @@ if (Get-SelectedActions) {
         Add-Package("git")
     }
 
-    if (-Not $DisableVisualStudio) {
+    if (-Not $NoVisualStudio) {
         if ($VisualStudioFlavor -eq "buildtools") {
             Add-VisualStudio "visualstudio2019buildtools"
         }
@@ -182,7 +199,34 @@ if (Get-SelectedActions) {
     }
 
     if ($Extras) {
+        Add-Package("discord")
+        Add-Package("vlc")
+        Add-Package("powershell-core")
+    }
+
+    if ($Games) {
         Add-Package("steam")
+    }
+
+    if ($Design) {
+        Add-Package("gimp")
+    }
+
+    if ($VideoEditing) {
+        Add-Package("obs-studio")
+        Add-Package("openshot")
+    }
+
+    if (-Not $NoUnrealEngine) {
+        Add-Package("python3")
+        Add-PipPackage("ue4cli")
+
+        if ($UnrealEngineFlavor -eq "installed") {
+            Write-Output("[info] ue4-vela downloaded. After installation run 'ue4 setroot <root of ue4 installation>")
+        }
+        else {
+            Write-Output("[info] manual installation of ue4 selected. After installation run 'ue4 setroot <root of ue4 installation>")
+        }
     }
 
     if ($Restart) {
