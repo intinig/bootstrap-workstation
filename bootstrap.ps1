@@ -187,6 +187,8 @@ if (Get-SelectedActions) {
         Add-Package($Browser)
         Add-Package("slack")
         Add-Package("git.install")
+        RefreshEnv.cmd
+        git lfs install
     }
 
     if (-Not $NoVisualStudio) {
