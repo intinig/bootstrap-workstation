@@ -4,11 +4,13 @@ param (
     [switch] $BaseSystem = $false,
     [switch] $Extras = $false,
     [string] $Browser = "Firefox",
-    [string] $VisualStudioFlavor = "buildtools"
+    [string] $VisualStudioFlavor = "buildtools",
+    [switch] $DisableVisualStudio = $false,
+    [switch] $Games = $false
 )
 
 function Get-SelectedActions {
-    return (($Init -or $BaseSystem) -or $Extras)
+    return (((($Init -or $BaseSystem) -or $Extras) -or $Games) -or (-Not $DisableVisualStudio))
 }
 
 function Add-Chocolatey {
@@ -123,13 +125,14 @@ function Write-Manifest {
         Write-ManifestOutput("chocolatey")
     }
 
-    if ($VisualStudioFlavor -eq "buildtools") {
-        Write-ManifestOutput("Visual Studio Build Tools 2019")
+    if (-Not $DisableVisualStudio) {
+        if ($VisualStudioFlavor -eq "buildtools") {
+            Write-ManifestOutput("Visual Studio Build Tools 2019")
+        }
+        else {
+            Write-ManifestOutput("Visual Studio Community 2019")
+        }
     }
-    else {
-        Write-ManifestOutput("Visual Studio Community 2019")
-    }
-
     if ($BaseSystem) {
         Write-ManifestOutput($Browser)
         Write-ManifestOutput("slack")
@@ -143,6 +146,10 @@ function Write-Manifest {
         Write-ManifestOutput("obs-sudio")
         Write-ManifestOutput("openshot")
         Write-ManifestOutput("powershell-core")
+    }
+
+    if ($Extras) {
+        Write-ManifestOutput("steam")
     }
 }
 
@@ -163,6 +170,19 @@ if (Get-SelectedActions) {
         Install-Package($Browser)
         Install-Package("slack")
         Install-Package("git.install")
+    }
+
+    if (-Not $DisableVisualStudio) {
+        if ($VisualStudioFlavor -eq "buildtools") {
+            Install-VisualStudio "visualstudio2019buildtools"
+        }
+        else {
+            Install-VisualStudio "visualstudio2019community"
+        }
+    }
+
+    if ($Extras) {
+        Install-Package("steam")
     }
 
     if ($Restart) {
