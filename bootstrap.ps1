@@ -6,7 +6,7 @@ param (
     [string] $Browser = "firefox",
     [string] $VisualStudioFlavor = "buildtools",
     [switch] $NoVisualStudio = $false,
-    [switch] $UnrealEngineFlavor = "installed",
+    [string] $UnrealEngineFlavor = "installed",
     [switch] $NoUnrealEngine = $false,
     [switch] $Games = $false,
     [switch] $Design = $false,
@@ -222,7 +222,7 @@ if (Get-SelectedActions) {
         Add-PipPackage("ue4cli")
 
         if ($UnrealEngineFlavor -eq "installed") {
-            Write-Output("[info] ue4-vela downloaded. After installation run 'ue4 setroot <root of ue4 installation>")
+            Write-Output("[info] please download ue4-vela downloaded. After installation run 'ue4 setroot <root of ue4 installation>")
         }
         else {
             Write-Output("[info] manual installation of ue4 selected. After installation run 'ue4 setroot <root of ue4 installation>")
