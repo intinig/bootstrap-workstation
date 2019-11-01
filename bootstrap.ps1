@@ -3,7 +3,7 @@ param (
     [switch] $Restart = $false,
     [switch] $BaseSystem = $false,
     [switch] $Extras = $false,
-    [string] $Browser = "Firefox",
+    [string] $Browser = "firefox",
     [string] $VisualStudioFlavor = "buildtools",
     [switch] $DisableVisualStudio = $false,
     [switch] $Games = $false
