@@ -169,7 +169,7 @@ if (Get-SelectedActions) {
     if ($BaseSystem) {
         Install-Package($Browser)
         Install-Package("slack")
-        Install-Package("git.install")
+        Install-Package("git")
     }
 
     if (-Not $DisableVisualStudio) {
