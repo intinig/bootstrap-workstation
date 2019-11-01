@@ -141,7 +141,7 @@ function Write-Manifest {
     if ($BaseSystem) {
         Write-ManifestOutput($Browser)
         Write-ManifestOutput("slack")
-        Write-ManifestOutput("git")
+        Write-ManifestOutput("git.install")
     }
 
     if ($Extras) {
@@ -186,7 +186,7 @@ if (Get-SelectedActions) {
     if ($BaseSystem) {
         Add-Package($Browser)
         Add-Package("slack")
-        Add-Package("git")
+        Add-Package("git.install")
     }
 
     if (-Not $NoVisualStudio) {
