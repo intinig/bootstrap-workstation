@@ -219,6 +219,7 @@ if (Get-SelectedActions) {
 
     if (-Not $NoUnrealEngine) {
         Add-Package("python3")
+        RefreshEnv.cmd
         Add-PipPackage("ue4cli")
 
         if ($UnrealEngineFlavor -eq "installed") {
