@@ -3,7 +3,9 @@ param (
     [switch] $Restart = $false,
     [switch] $BaseSystem = $false,
     [switch] $Extras = $false,
+    [switch] $Tuning = $false,
     [string] $Browser = "firefox",
+    [switch] $Engineering = $false,
     [string] $VisualStudioFlavor = "buildtools",
     [switch] $NoVisualStudio = $false,
     [string] $UnrealEngineFlavor = "installed",
@@ -14,7 +16,7 @@ param (
 )
 
 function Get-SelectedActions {
-    return ((((((($Init -or $BaseSystem) -or $Extras) -or $Games) -or (-Not $NoVisualStudio)) -or (-Not $NoUnrealEngine)) -or $Design) -or $VideoEditing)
+    return ((((((((($Init -or $BaseSystem) -or $Extras) -or $Games) -or (-Not $NoVisualStudio)) -or (-Not $NoUnrealEngine)) -or $Design) -or $VideoEditing) -or $Tuning) -or $Engineering)
 }
 
 function Add-Chocolatey {
@@ -148,6 +150,24 @@ function Write-Manifest {
         Write-ManifestOutput("discord")
         Write-ManifestOutput("vlc")
         Write-ManifestOutput("powershell-core")
+        Write-ManifestOutput("whatsapp")
+        Write-ManifestOutput("plexmediaserver")
+    }
+
+    if ($Tuning) {
+        Write-ManifestOutput("driverbooster")
+        Write-ManifestOutput("iobit-uninstaller")
+    }
+
+    if ($Engineering) {
+        Write-ManifestOutput("fluent-terminal")
+        Write-ManifestOutput("vscode")
+        Write-ManifestOutput("llvm")
+        Write-ManifestOutput("jq")
+        Write-ManifestOutput("meld")
+        Write-ManifestOutput("PowerShellGet")
+        Write-ManifestOutput("posh-git")
+        Write-ManifestOutput("httpie")
     }
 
     if ($Games) {
@@ -204,6 +224,38 @@ if (Get-SelectedActions) {
         Add-Package("discord")
         Add-Package("vlc")
         Add-Package("powershell-core")
+        Add-Package("whatsapp")
+        Add-Package("plexmediaserver")
+    }
+
+    if ($Tuning) {
+        Add-Package("driverbooster")
+        Add-Package("iobit-uninstaller")
+    }
+
+    if ($Engineering) {
+        Add-Package("fluent-terminal")
+        Add-Package("vscode")
+        Add-Package("llvm")
+        Add-Package("jq")
+        Add-Package("meld")
+
+        if (Get-Module -Name PowershellGet) {
+            Write-Output "[info] 'PowerShellGet' already installed"
+        }
+        else {
+            Install-Module PowerShellGet -Scope CurrentUser -Force -AllowClobber
+        }
+
+        if (PowershellGet\Get-InstalledModule | Select-String -Pattern "posh-git") {
+            Write-Output "[info] 'posh-git' already installed"
+        }
+        else {
+            PowerShellGet\Install-Module posh-git -Scope CurrentUser -AllowPrerelease -Force
+            Add-PoshGitToProfile -AllUsers -AllHosts
+        }
+
+        Add-PipPackage("httpie")
     }
 
     if ($Games) {
